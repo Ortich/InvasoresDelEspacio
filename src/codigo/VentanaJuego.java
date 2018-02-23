@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.Timer;
 
@@ -19,11 +20,13 @@ import javax.swing.Timer;
 public class VentanaJuego extends javax.swing.JFrame {
 
     static int ANCHOPANTALLA = 800;
-    static int ALTOPANTALLA  = 600;
-    
+    static int ALTOPANTALLA = 600;
+
     BufferedImage buffer = null;
-    
     int contador = 0;
+    Nave miNave = new Nave(ANCHOPANTALLA);
+    Disparo miDisparo = new Disparo(ALTOPANTALLA);
+
     //Bucle de animacion del juego
     //En este caso es un hilo de ejecucion que se encarga
     //de la animacion del contenido
@@ -34,37 +37,44 @@ public class VentanaJuego extends javax.swing.JFrame {
 	    bucleDelJuego();
 	}
     });
-    
+
     /**
      * Creates new form VentanaJuego
      */
     public VentanaJuego() {
 	initComponents();
-	setSize(ANCHOPANTALLA,ALTOPANTALLA);
-	buffer = (BufferedImage) jPanel1.createImage(ANCHOPANTALLA,ALTOPANTALLA);
+	setSize(ANCHOPANTALLA, ALTOPANTALLA);
+	buffer = (BufferedImage) jPanel1.createImage(ANCHOPANTALLA, ALTOPANTALLA);
 	buffer.createGraphics();
+	miNave.x = ANCHOPANTALLA / 2 - miNave.imagen.getWidth(this) / 2;
+	miNave.y = ALTOPANTALLA - miNave.imagen.getHeight(this) - 35;
 	//Inicio el temporizador
 	temporizador.start();
+
     }
-    
-    private void bucleDelJuego(){
+
+    private void bucleDelJuego() {
 	//El bucle de animacion gobierna el redibujado de los objetos en el JPanel1
 	//Primero borro todo lo que hay en buffer
-	Graphics2D g2 = (Graphics2D)buffer.getGraphics();
+	Graphics2D g2 = (Graphics2D) buffer.getGraphics();
 	g2.setColor(Color.BLACK);
 	g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
-	
+
 	////////////////////////////////////////////////////////////////////////
 	//Redibujamos cada elemento en su nueva posicion en el buffer
-	
-	contador++;
-	System.out.println(contador);
+	//Pintamos el disparo
+	miDisparo.mueve();
+	g2.drawImage(miDisparo.imagen, miDisparo.getX(), miDisparo.getY(), null);
+	//Pintamos la nave
+	miNave.mueve();
+	g2.drawImage(miNave.imagen, miNave.x, miNave.y, null);
 	////////////////////////////////////////////////////////////////////////
-	
+
 	//Redibujo el buffer sobre el JPanel
-	g2 = (Graphics2D)jPanel1.getGraphics();
+	g2 = (Graphics2D) jPanel1.getGraphics();
 	g2.drawImage(buffer, 0, 0, null);
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -79,7 +89,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(800, 600));
         setMinimumSize(new java.awt.Dimension(800, 600));
-        setPreferredSize(new java.awt.Dimension(800, 600));
+        setResizable(false);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -105,6 +123,46 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        // TODO add your handling code here:
+	switch (evt.getKeyCode()) {
+	    case KeyEvent.VK_SPACE:
+		miDisparo.setDisparado(true);
+		miDisparo.posicionaDisparo(miNave);
+		break;
+	    case KeyEvent.VK_RIGHT:
+		miNave.setPulsadoDerecha(true);
+		break;
+	    case KeyEvent.VK_D:
+		miNave.setPulsadoDerecha(true);
+		break;
+	    case KeyEvent.VK_LEFT:
+		miNave.setPulsadoIzquierda(true);
+		break;
+	    case KeyEvent.VK_A:
+		miNave.setPulsadoIzquierda(true);
+		break;
+	}
+    }//GEN-LAST:event_formKeyPressed
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        // TODO add your handling code here:
+	switch (evt.getKeyCode()) {
+	    case KeyEvent.VK_RIGHT:
+		miNave.setPulsadoDerecha(false);
+		break;
+	    case KeyEvent.VK_D:
+		miNave.setPulsadoDerecha(false);
+		break;
+	    case KeyEvent.VK_LEFT:
+		miNave.setPulsadoIzquierda(false);
+		break;
+	    case KeyEvent.VK_A:
+		miNave.setPulsadoIzquierda(false);
+		break;
+	}
+    }//GEN-LAST:event_formKeyReleased
 
     /**
      * @param args the command line arguments
